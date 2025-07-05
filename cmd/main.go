@@ -1,27 +1,38 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
-	"os"
 
+	"github.com/deleonn/gopr/internal/service"
 	"github.com/joho/godotenv"
-	"github.com/joeldeleon/pr_description_generator/internal/api"
 )
 
 func main() {
 	// Load environment variables from .env file
 	err := godotenv.Load()
 	if err != nil {
-		log.Printf("Error loading .env file: %v", err)
+		log.Printf("Warning: Error loading .env file: %v", err)
 	}
 
-	// Initialize the API
-	apiServer := api.NewAPI()
+	// Parse command line flags
+	var (
+		ollamaURL = flag.String("ollama-url", "http://localhost:11434", "Ollama server URL")
+		model     = flag.String("model", "llama3.2", "Ollama model to use")
+		verbose   = flag.Bool("verbose", false, "Enable verbose output")
+	)
+	flag.Parse()
 
-	// Start the server
-	log.Println("Starting server on port 8080")
-	if err := apiServer.Start(":" + os.Getenv("PORT")); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+	// Initialize the PR service
+	prService := service.NewPRService(*ollamaURL, *model)
+
+	// Generate PR description from branch comparison
+	description, err := prService.GeneratePRDescriptionFromBranch(*verbose)
+	if err != nil {
+		log.Fatalf("Failed to generate PR description: %v", err)
 	}
+
+	// Output the description to stdout (can be piped to gh or clipboard)
+	fmt.Print(description)
 }
-
