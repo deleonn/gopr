@@ -107,7 +107,7 @@ func (s *PRService) formatForLLM(branchName, diff string, commits []string) stri
 	var prompt strings.Builder
 	
 	prompt.WriteString("You are a helpful assistant that generates clear and concise Pull Request descriptions. ")
-	prompt.WriteString("Based on the following information, generate a professional PR description in markdown format.\n\n")
+	prompt.WriteString("Based on the following information, generate a professional PR description in the exact format specified below.\n\n")
 	
 	prompt.WriteString("## Context\n")
 	prompt.WriteString(fmt.Sprintf("- **Branch**: %s\n", branchName))
@@ -126,12 +126,13 @@ func (s *PRService) formatForLLM(branchName, diff string, commits []string) stri
 	prompt.WriteString("\n```\n\n")
 	
 	prompt.WriteString("## Instructions\n")
-	prompt.WriteString("Generate a PR description that includes:\n")
-	prompt.WriteString("1. A brief summary of what this PR accomplishes\n")
-	prompt.WriteString("2. Key changes made\n")
-	prompt.WriteString("3. Any breaking changes or important notes\n")
-	prompt.WriteString("4. Testing information if applicable\n\n")
-	prompt.WriteString("Keep it professional, clear, and concise. Use markdown formatting.\n\n")
+	prompt.WriteString("Generate a PR description with exactly these 5 sections in order:\n\n")
+	prompt.WriteString("1. **TL;DR** - A brief, one-sentence summary of what this PR accomplishes\n")
+	prompt.WriteString("2. **What's changed?** - A bulleted list of the key changes made\n")
+	prompt.WriteString("3. **How to test?** - Step-by-step instructions for testing the changes\n")
+	prompt.WriteString("4. **Why make this change?** - Explanation of the business value and reasoning\n")
+	prompt.WriteString("5. **Breaking changes or important notes** - Any breaking changes, deprecations, or important information\n\n")
+	prompt.WriteString("Use markdown formatting with # for section headers. Keep each section concise but informative.\n\n")
 	prompt.WriteString("## PR Description\n")
 	
 	return prompt.String()
