@@ -127,7 +127,7 @@ func (s *PRService) getCommitsSinceMain() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	lines := strings.Split(strings.TrimSpace(string(output)), "\n")
 	if len(lines) == 1 && lines[0] == "" {
 		return []string{}, nil
@@ -139,11 +139,11 @@ func (s *PRService) getCommitsSinceMain() ([]string, error) {
 func (s *PRService) analyzeFileTypes(diff string) string {
 	var analysis strings.Builder
 	analysis.WriteString("## File Analysis\n")
-	
+
 	// Count different file types
 	fileTypes := make(map[string]int)
 	lines := strings.Split(diff, "\n")
-	
+
 	for _, line := range lines {
 		if strings.HasPrefix(line, "+++ b/") || strings.HasPrefix(line, "--- a/") {
 			parts := strings.Split(line, "/")
@@ -159,7 +159,7 @@ func (s *PRService) analyzeFileTypes(diff string) string {
 			}
 		}
 	}
-	
+
 	if len(fileTypes) > 0 {
 		analysis.WriteString("Files changed by type:\n")
 		for ext, count := range fileTypes {
@@ -168,23 +168,23 @@ func (s *PRService) analyzeFileTypes(diff string) string {
 	} else {
 		analysis.WriteString("No file type analysis available\n")
 	}
-	
+
 	return analysis.String()
 }
 
 // formatForLLM formats the information for optimal LLM input
 func (s *PRService) formatForLLM(branchName, diff string, commits []string, fileAnalysis string) string {
 	var prompt strings.Builder
-	
+
 	prompt.WriteString("You are analyzing a Git repository to generate an accurate PR description. ")
 	prompt.WriteString("Base your response ONLY on the actual code changes shown below. ")
 	prompt.WriteString("Do NOT make assumptions or generic statements. ")
 	prompt.WriteString("If the changes are unclear, be specific about what you can see.\n\n")
-	
+
 	prompt.WriteString("## Repository Context\n")
 	prompt.WriteString(fmt.Sprintf("Current branch: %s\n", branchName))
 	prompt.WriteString(fmt.Sprintf("Number of commits since main: %d\n", len(commits)))
-	
+
 	if len(commits) > 0 {
 		prompt.WriteString("\nCommit messages:\n")
 		for _, commit := range commits {
@@ -192,10 +192,10 @@ func (s *PRService) formatForLLM(branchName, diff string, commits []string, file
 		}
 		prompt.WriteString("\n")
 	}
-	
+
 	prompt.WriteString(fileAnalysis)
 	prompt.WriteString("\n")
-	
+
 	prompt.WriteString("## Actual Code Changes (git diff)\n")
 	if diff == "" {
 		prompt.WriteString("No code changes detected (empty diff)\n\n")
@@ -204,7 +204,7 @@ func (s *PRService) formatForLLM(branchName, diff string, commits []string, file
 		prompt.WriteString(diff)
 		prompt.WriteString("\n```\n\n")
 	}
-	
+
 	prompt.WriteString("## Instructions\n")
 	prompt.WriteString("Analyze the code changes above and generate a PR description. ")
 	prompt.WriteString("Be specific about what files were changed and what functionality was added/modified/removed. ")
@@ -224,7 +224,7 @@ func (s *PRService) formatForLLM(branchName, diff string, commits []string, file
 	prompt.WriteString("- [Important note based on actual changes]\n")
 	prompt.WriteString("- [Another important note if applicable]\n\n")
 	prompt.WriteString("## Your Response\n")
-	
+
 	return prompt.String()
 }
 
@@ -244,7 +244,7 @@ func (s *PRService) validateResponse(response string) bool {
 		"improved performance",
 		"better functionality",
 	}
-	
+
 	responseLower := strings.ToLower(response)
 	for _, phrase := range genericPhrases {
 		if strings.Contains(responseLower, phrase) {
@@ -256,7 +256,7 @@ func (s *PRService) validateResponse(response string) bool {
 
 // callOllama makes a request to the Ollama API
 func (s *PRService) callOllama(prompt string) (string, error) {
-	requestBody := map[string]interface{}{
+	requestBody := map[string]any{
 		"model":       s.model,
 		"prompt":      prompt,
 		"stream":      false,
@@ -288,7 +288,7 @@ func (s *PRService) callOllama(prompt string) (string, error) {
 		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	var result map[string]interface{}
+	var result map[string]any
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return "", fmt.Errorf("failed to decode response: %w", err)
 	}
@@ -302,6 +302,6 @@ func (s *PRService) callOllama(prompt string) (string, error) {
 }
 
 // Legacy method for backward compatibility (can be removed if not needed)
-func (s *PRService) GeneratePRDescription(req interface{}) (string, error) {
+func (s *PRService) GeneratePRDescription(req any) (string, error) {
 	return "", fmt.Errorf("this method is deprecated, use GeneratePRDescriptionFromBranch instead")
 }
