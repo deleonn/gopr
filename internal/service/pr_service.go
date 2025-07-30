@@ -15,16 +15,18 @@ import (
 type PRService struct {
 	ollamaURL string
 	model     string
+	branch    string
 }
 
-func NewPRService(ollamaURL, model string) *PRService {
+func NewPRService(ollamaURL, model, branch string) *PRService {
 	return &PRService{
 		ollamaURL: ollamaURL,
 		model:     model,
+		branch:    branch,
 	}
 }
 
-// GeneratePRDescriptionFromBranch generates a PR description by comparing current branch with main
+// GeneratePRDescriptionFromBranch generates a PR description by comparing current branch with the provided branch
 func (s *PRService) GeneratePRDescriptionFromBranch(verbose bool) (string, error) {
 	// Get the current branch name
 	currentBranch, err := s.getCurrentBranch()
@@ -36,8 +38,8 @@ func (s *PRService) GeneratePRDescriptionFromBranch(verbose bool) (string, error
 		fmt.Fprintf(os.Stderr, "Current branch: %s\n", currentBranch)
 	}
 
-	// Get the diff between current branch and main
-	diff, err := s.getBranchDiff()
+	// Get the diff between current branch and the selected one
+	diff, err := s.getBranchDiff(s.branch)
 	if err != nil {
 		return "", fmt.Errorf("failed to get branch diff: %w", err)
 	}
@@ -46,8 +48,8 @@ func (s *PRService) GeneratePRDescriptionFromBranch(verbose bool) (string, error
 		fmt.Fprintf(os.Stderr, "Diff length: %d characters\n", len(diff))
 	}
 
-	// Get commit messages since main
-	commits, err := s.getCommitsSinceMain()
+	// Get commit messages since branch
+	commits, err := s.getCommitsSince()
 	if err != nil {
 		return "", fmt.Errorf("failed to get commits: %w", err)
 	}
@@ -110,9 +112,9 @@ func (s *PRService) getCurrentBranch() (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-// getBranchDiff gets the diff between current branch and main
-func (s *PRService) getBranchDiff() (string, error) {
-	cmd := exec.Command("git", "diff", "main...")
+// getBranchDiff gets the diff between current branch and the provided branch
+func (s *PRService) getBranchDiff(branch string) (string, error) {
+	cmd := exec.Command("git", "diff", fmt.Sprintf("%s...", branch))
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("failed to get git diff: %v", err)
@@ -120,9 +122,9 @@ func (s *PRService) getBranchDiff() (string, error) {
 	return string(output), nil
 }
 
-// getCommitsSinceMain gets commit messages since the main branch
-func (s *PRService) getCommitsSinceMain() ([]string, error) {
-	cmd := exec.Command("git", "log", "main..", "--oneline", "--no-merges")
+// getCommitsSince gets commit messages since the provided branch
+func (s *PRService) getCommitsSince() ([]string, error) {
+	cmd := exec.Command("git", "log", fmt.Sprintf("%s..", s.branch), "--oneline", "--no-merges")
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, err
@@ -183,7 +185,7 @@ func (s *PRService) formatForLLM(branchName, diff string, commits []string, file
 
 	prompt.WriteString("## Repository Context\n")
 	prompt.WriteString(fmt.Sprintf("Current branch: %s\n", branchName))
-	prompt.WriteString(fmt.Sprintf("Number of commits since main: %d\n", len(commits)))
+	prompt.WriteString(fmt.Sprintf("Number of commits since %s: %d\n", s.branch, len(commits)))
 
 	if len(commits) > 0 {
 		prompt.WriteString("\nCommit messages:\n")

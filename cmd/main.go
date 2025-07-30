@@ -20,7 +20,7 @@ type Config struct {
 func loadConfig() Config {
 	config := Config{
 		OllamaURL: "http://msi_th.home:11434",
-		Model:     "devstral:latest", // Default to the best performing model
+		Model:     "qwen2.5-coder:14b-instruct-q8_0",
 	}
 
 	// Try to load from .goprrc in current directory
@@ -75,21 +75,19 @@ func loadConfigFromFile(filename string, config *Config) {
 }
 
 func main() {
-	// Load config file
 	config := loadConfig()
 
 	// Parse command line flags (these override config file)
 	var (
 		ollamaURL = flag.String("ollama-url", config.OllamaURL, "Ollama server URL")
 		model     = flag.String("model", config.Model, "Ollama model to use")
+		branch    = flag.String("branch", "main", "Branch for diff comparison")
 		verbose   = flag.Bool("verbose", false, "Enable verbose output")
 	)
 	flag.Parse()
 
-	// Initialize the PR service
-	prService := service.NewPRService(*ollamaURL, *model)
+	prService := service.NewPRService(*ollamaURL, *model, *branch)
 
-	// Generate PR description from branch comparison
 	description, err := prService.GeneratePRDescriptionFromBranch(*verbose)
 	if err != nil {
 		log.Fatalf("Failed to generate PR description: %v", err)

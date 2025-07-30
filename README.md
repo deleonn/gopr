@@ -146,7 +146,6 @@ Based on testing, these models perform best for PR description generation:
 
 - `cmd/main.go`: CLI entry point with config file support
 - `internal/service/`: Contains the PR generation logic and Ollama integration
-- `internal/models/`: Data models (legacy, can be removed)
 
 ## Contributing
 
