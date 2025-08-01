@@ -29,6 +29,10 @@ func NewAnthropicProvider(config models.AnthropicConfig) *AnthropicProvider {
 	}
 }
 
+func (a *AnthropicProvider) GetModel() string {
+	return a.model
+}
+
 func (a *AnthropicProvider) GetName() string {
 	return "Anthropic"
 }

@@ -38,6 +38,11 @@ func (s *PRService) GeneratePRDescriptionFromBranch(verbose bool) (string, error
 	}
 
 	if verbose {
+		fmt.Fprintf(os.Stderr, "Current provider: %s\n", s.provider.GetName())
+		fmt.Fprintf(os.Stderr, "Current model: %s\n", s.provider.GetModel())
+	}
+
+	if verbose {
 		fmt.Fprintf(os.Stderr, "Current branch: %s\n", currentBranch)
 	}
 

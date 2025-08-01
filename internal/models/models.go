@@ -8,24 +8,25 @@ import (
 type LLMProvider interface {
 	GenerateResponse(ctx context.Context, prompt string, temperature float64) (string, error)
 	GetName() string
+	GetModel() string
 }
 
 // ProviderType represents the type of LLM provider
 type ProviderType string
 
 const (
-	ProviderOllama   ProviderType = "ollama"
-	ProviderOpenAI   ProviderType = "openai"
+	ProviderOllama    ProviderType = "ollama"
+	ProviderOpenAI    ProviderType = "openai"
 	ProviderAnthropic ProviderType = "anthropic"
-	ProviderDeepSeek ProviderType = "deepseek"
+	ProviderDeepSeek  ProviderType = "deepseek"
 )
 
 // Config holds the configuration for the application
 type Config struct {
-	Provider   ProviderType `json:"provider"`
-	Model      string       `json:"model"`
-	APIKey     string       `json:"api_key,omitempty"`
-	BaseURL    string       `json:"base_url,omitempty"`
+	Provider    ProviderType `json:"provider"`
+	Model       string       `json:"model"`
+	APIKey      string       `json:"api_key,omitempty"`
+	BaseURL     string       `json:"base_url,omitempty"`
 	Temperature float64      `json:"temperature"`
 }
 
@@ -37,8 +38,8 @@ type OllamaConfig struct {
 
 // OpenAIConfig holds OpenAI-specific configuration
 type OpenAIConfig struct {
-	APIKey string `json:"api_key"`
-	Model  string `json:"model"`
+	APIKey  string `json:"api_key"`
+	Model   string `json:"model"`
 	BaseURL string `json:"base_url,omitempty"`
 }
 
@@ -50,7 +51,8 @@ type AnthropicConfig struct {
 
 // DeepSeekConfig holds DeepSeek-specific configuration
 type DeepSeekConfig struct {
-	APIKey string `json:"api_key"`
-	Model  string `json:"model"`
+	APIKey  string `json:"api_key"`
+	Model   string `json:"model"`
 	BaseURL string `json:"base_url,omitempty"`
-} 
+}
+

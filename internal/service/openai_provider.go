@@ -30,6 +30,10 @@ func NewOpenAIProvider(config models.OpenAIConfig) *OpenAIProvider {
 	}
 }
 
+func (o *OpenAIProvider) GetModel() string {
+	return o.model
+}
+
 func (o *OpenAIProvider) GetName() string {
 	return "OpenAI"
 }

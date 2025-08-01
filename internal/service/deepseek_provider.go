@@ -30,6 +30,10 @@ func NewDeepSeekProvider(config models.DeepSeekConfig) *DeepSeekProvider {
 	}
 }
 
+func (d *DeepSeekProvider) GetModel() string {
+	return d.model
+}
+
 func (d *DeepSeekProvider) GetName() string {
 	return "DeepSeek"
 }

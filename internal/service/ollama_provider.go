@@ -33,6 +33,10 @@ func NewOllamaProvider(config models.OllamaConfig) *OllamaProvider {
 	}
 }
 
+func (o *OllamaProvider) GetModel() string {
+	return o.model
+}
+
 func (o *OllamaProvider) GetName() string {
 	return "Ollama"
 }
