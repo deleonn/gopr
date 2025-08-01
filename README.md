@@ -46,6 +46,25 @@ PR Description Generator is a Go-based CLI tool that automatically generates pul
    go build -o gopr cmd/main.go
    ```
 
+4. (Optional) Make the binary available in your system:
+
+   ```bash
+   mv gopr /usr/local/bin
+   ```
+
+5. (Optional) Create a copy of the .goprrc example file in your root folder and configure your settings (or pass flags to the executable if you don't want to use .goprrc):
+
+   ```bash
+   cp example.goprrc ~/.goprrc
+
+   ```
+
+6. Execute the binary to make sure it works properly (use -help to see available flags):
+
+   ```bash
+   gopr -help
+   ```
+
 ## Configuration
 
 ### Config File
@@ -53,6 +72,7 @@ PR Description Generator is a Go-based CLI tool that automatically generates pul
 Create a `.goprrc` file in your project root or home directory. The configuration depends on your chosen provider:
 
 **For Ollama (local models):**
+
 ```ini
 provider=ollama
 base_url=http://localhost:11434
@@ -61,6 +81,7 @@ temperature=0.1
 ```
 
 **For OpenAI:**
+
 ```ini
 provider=openai
 api_key=your_openai_api_key_here
@@ -69,6 +90,7 @@ temperature=0.1
 ```
 
 **For Anthropic:**
+
 ```ini
 provider=anthropic
 api_key=your_anthropic_api_key_here
@@ -77,6 +99,7 @@ temperature=0.1
 ```
 
 **For DeepSeek:**
+
 ```ini
 provider=deepseek
 api_key=your_deepseek_api_key_here
@@ -152,36 +175,43 @@ Available options:
 ### Examples
 
 **Using Ollama (local models):**
+
 ```bash
 ./gopr -provider ollama -model codellama
 ```
 
 **Using OpenAI:**
+
 ```bash
 ./gopr -provider openai -model gpt-4 -api-key your_api_key_here
 ```
 
 **Using Anthropic:**
+
 ```bash
 ./gopr -provider anthropic -model claude-3-sonnet-20240229 -api-key your_api_key_here
 ```
 
 **Using DeepSeek:**
+
 ```bash
 ./gopr -provider deepseek -model deepseek-chat -api-key your_api_key_here
 ```
 
 **Enable verbose output:**
+
 ```bash
 ./gopr -verbose
 ```
 
 **Use a remote Ollama instance:**
+
 ```bash
 ./gopr -provider ollama -base-url http://192.168.1.100:11434
 ```
 
 **Full command with all parameters:**
+
 ```bash
 ./gopr -provider openai -model gpt-4 -api-key your_key -temperature 0.1 -branch main -verbose
 ```
@@ -191,6 +221,7 @@ Available options:
 Based on testing, these models perform best for PR description generation:
 
 ### Ollama Models (Local)
+
 1. **devstral:latest** (23.6B) - Best accuracy and understanding of code changes
 2. **phi4:latest** (14.7B) - Good balance of size and accuracy
 3. **deepseek-coder-v2:latest** (15.7B) - Code-focused but may be less accurate
@@ -198,16 +229,19 @@ Based on testing, these models perform best for PR description generation:
 5. **qwen2.5-coder:14b-instruct-q8_0** (14B) - Good accuracy but slower
 
 ### OpenAI Models
+
 1. **gpt-4** - Excellent code understanding and PR description quality
 2. **gpt-3.5-turbo** - Good performance with faster response times
 3. **gpt-4-turbo** - Best balance of quality and speed
 
 ### Anthropic Models
+
 1. **claude-3-sonnet-20240229** - Excellent code analysis and PR descriptions
 2. **claude-3-haiku-20240307** - Fast and efficient for smaller changes
 3. **claude-3-opus-20240229** - Highest quality but slower responses
 
 ### DeepSeek Models
+
 1. **deepseek-chat** - Excellent code understanding and PR descriptions
 2. **deepseek-coder** - Specialized for code-related tasks
 3. **deepseek-chat-33b** - High-quality responses with good performance
