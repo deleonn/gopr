@@ -1,29 +1,32 @@
 package service
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/deleonn/gopr/internal/models"
 )
 
 type PRService struct {
-	ollamaURL string
-	model     string
-	branch    string
+	provider models.LLMProvider
+	branch   string
 }
 
-func NewPRService(ollamaURL, model, branch string) *PRService {
-	return &PRService{
-		ollamaURL: ollamaURL,
-		model:     model,
-		branch:    branch,
+func NewPRService(config models.Config, branch string) (*PRService, error) {
+	factory := NewProviderFactory()
+	provider, err := factory.CreateProvider(config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create provider: %w", err)
 	}
+
+	return &PRService{
+		provider: provider,
+		branch:   branch,
+	}, nil
 }
 
 // GeneratePRDescriptionFromBranch generates a PR description by comparing current branch with the provided branch
@@ -67,7 +70,7 @@ func (s *PRService) GeneratePRDescriptionFromBranch(verbose bool) (string, error
 	// Format the information for the LLM
 	prompt := s.formatForLLM(currentBranch, diff, commits, fileAnalysis)
 
-	// Generate description using Ollama with retry logic
+	// Generate description using LLM provider with retry logic
 	var description string
 	maxRetries := 3
 	for attempt := 1; attempt <= maxRetries; attempt++ {
@@ -75,7 +78,7 @@ func (s *PRService) GeneratePRDescriptionFromBranch(verbose bool) (string, error
 			fmt.Fprintf(os.Stderr, "Retry attempt %d/%d\n", attempt, maxRetries)
 		}
 
-		description, err = s.callOllama(prompt)
+		description, err = s.callLLMProvider(prompt)
 		if err != nil {
 			if attempt == maxRetries {
 				return "", fmt.Errorf("failed to generate description after %d attempts: %w", maxRetries, err)
@@ -256,49 +259,8 @@ func (s *PRService) validateResponse(response string) bool {
 	return true
 }
 
-// callOllama makes a request to the Ollama API
-func (s *PRService) callOllama(prompt string) (string, error) {
-	requestBody := map[string]any{
-		"model":       s.model,
-		"prompt":      prompt,
-		"stream":      false,
-		"temperature": 0.1, // Low temperature for more focused responses
-	}
-
-	body, err := json.Marshal(requestBody)
-	if err != nil {
-		return "", fmt.Errorf("failed to marshal request body: %w", err)
-	}
-
+// callLLMProvider makes a request to the configured LLM provider
+func (s *PRService) callLLMProvider(prompt string) (string, error) {
 	ctx := context.Background()
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", s.ollamaURL+"/api/generate", bytes.NewBuffer(body))
-	if err != nil {
-		return "", fmt.Errorf("failed to create request: %w", err)
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{
-		Timeout: 60 * time.Second, // Add timeout
-	}
-	resp, err := client.Do(httpReq)
-	if err != nil {
-		return "", fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	var result map[string]any
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", fmt.Errorf("failed to decode response: %w", err)
-	}
-
-	response, ok := result["response"].(string)
-	if !ok {
-		return "", fmt.Errorf("invalid response format")
-	}
-
-	return response, nil
+	return s.provider.GenerateResponse(ctx, prompt, 0.1) // Low temperature for more focused responses
 }
