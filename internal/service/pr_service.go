@@ -302,8 +302,3 @@ func (s *PRService) callOllama(prompt string) (string, error) {
 
 	return response, nil
 }
-
-// Legacy method for backward compatibility (can be removed if not needed)
-func (s *PRService) GeneratePRDescription(req any) (string, error) {
-	return "", fmt.Errorf("this method is deprecated, use GeneratePRDescriptionFromBranch instead")
-}
