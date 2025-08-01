@@ -17,10 +17,24 @@ type OllamaProvider struct {
 }
 
 func NewOllamaProvider(config models.OllamaConfig) *OllamaProvider {
-	return &OllamaProvider{
-		baseURL: config.BaseURL,
-		model:   config.Model,
+	baseURL := config.BaseURL
+	if baseURL == "" {
+		baseURL = "http://localhost:11434"
 	}
+
+	model := config.Model
+	if model == "" {
+		model = "qwen2.5-coder:14b-instruct-q8_0"
+	}
+
+	return &OllamaProvider{
+		baseURL: baseURL,
+		model:   model,
+	}
+}
+
+func (o *OllamaProvider) GetModel() string {
+	return o.model
 }
 
 func (o *OllamaProvider) GetName() string {
@@ -70,4 +84,5 @@ func (o *OllamaProvider) GenerateResponse(ctx context.Context, prompt string, te
 	}
 
 	return response, nil
-} 
+}
+

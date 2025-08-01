@@ -16,9 +16,6 @@ import (
 
 func loadConfig() models.Config {
 	config := models.Config{
-		Provider:    models.ProviderOllama,
-		Model:       "qwen2.5-coder:14b-instruct-q8_0",
-		BaseURL:     "http://localhost:11434",
 		Temperature: 0.1,
 	}
 

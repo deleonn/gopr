@@ -17,10 +17,20 @@ type AnthropicProvider struct {
 }
 
 func NewAnthropicProvider(config models.AnthropicConfig) *AnthropicProvider {
+	model := config.Model
+
+	if model == "" {
+		model = "claude-3-sonnet-20240229"
+	}
+
 	return &AnthropicProvider{
 		apiKey: config.APIKey,
-		model:  config.Model,
+		model:  model,
 	}
+}
+
+func (a *AnthropicProvider) GetModel() string {
+	return a.model
 }
 
 func (a *AnthropicProvider) GetName() string {
@@ -82,4 +92,5 @@ func (a *AnthropicProvider) GenerateResponse(ctx context.Context, prompt string,
 	}
 
 	return text, nil
-} 
+}
+

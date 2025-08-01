@@ -18,16 +18,20 @@ type OpenAIProvider struct {
 }
 
 func NewOpenAIProvider(config models.OpenAIConfig) *OpenAIProvider {
-	baseURL := config.BaseURL
-	if baseURL == "" {
-		baseURL = "https://api.openai.com/v1"
+	model := config.Model
+
+	if model == "" {
+		model = "gpt-4"
 	}
 
 	return &OpenAIProvider{
-		apiKey:  config.APIKey,
-		model:   config.Model,
-		baseURL: baseURL,
+		apiKey: config.APIKey,
+		model:  config.Model,
 	}
+}
+
+func (o *OpenAIProvider) GetModel() string {
+	return o.model
 }
 
 func (o *OpenAIProvider) GetName() string {
@@ -47,7 +51,7 @@ func (o *OpenAIProvider) GenerateResponse(ctx context.Context, prompt string, te
 		return "", fmt.Errorf("failed to marshal request body: %w", err)
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", o.baseURL+"/chat/completions", bytes.NewBuffer(body))
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", "https://api.openapi.com/v1/chat/completions", bytes.NewBuffer(body))
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
@@ -93,4 +97,5 @@ func (o *OpenAIProvider) GenerateResponse(ctx context.Context, prompt string, te
 	}
 
 	return content, nil
-} 
+}
+

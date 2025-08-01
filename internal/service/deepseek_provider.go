@@ -18,16 +18,20 @@ type DeepSeekProvider struct {
 }
 
 func NewDeepSeekProvider(config models.DeepSeekConfig) *DeepSeekProvider {
-	baseURL := config.BaseURL
-	if baseURL == "" {
-		baseURL = "https://api.deepseek.com/v1"
+	model := config.Model
+
+	if model == "" {
+		model = "deepseek-chat"
 	}
 
 	return &DeepSeekProvider{
-		apiKey:  config.APIKey,
-		model:   config.Model,
-		baseURL: baseURL,
+		apiKey: config.APIKey,
+		model:  model,
 	}
+}
+
+func (d *DeepSeekProvider) GetModel() string {
+	return d.model
 }
 
 func (d *DeepSeekProvider) GetName() string {
@@ -47,7 +51,7 @@ func (d *DeepSeekProvider) GenerateResponse(ctx context.Context, prompt string, 
 		return "", fmt.Errorf("failed to marshal request body: %w", err)
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", d.baseURL+"/chat/completions", bytes.NewBuffer(body))
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", "https://api.deepseek.com/v1/chat/completions", bytes.NewBuffer(body))
 	if err != nil {
 		return "", fmt.Errorf("failed to create request: %w", err)
 	}
@@ -93,4 +97,4 @@ func (d *DeepSeekProvider) GenerateResponse(ctx context.Context, prompt string, 
 	}
 
 	return content, nil
-} 
+}
