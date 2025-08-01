@@ -28,9 +28,8 @@ func (f *ProviderFactory) CreateProvider(config models.Config) (models.LLMProvid
 			return nil, fmt.Errorf("API key is required for OpenAI provider")
 		}
 		openAIConfig := models.OpenAIConfig{
-			APIKey:  config.APIKey,
-			Model:   config.Model,
-			BaseURL: config.BaseURL,
+			APIKey: config.APIKey,
+			Model:  config.Model,
 		}
 		return NewOpenAIProvider(openAIConfig), nil
 
@@ -49,13 +48,12 @@ func (f *ProviderFactory) CreateProvider(config models.Config) (models.LLMProvid
 			return nil, fmt.Errorf("API key is required for DeepSeek provider")
 		}
 		deepSeekConfig := models.DeepSeekConfig{
-			APIKey:  config.APIKey,
-			Model:   config.Model,
-			BaseURL: config.BaseURL,
+			APIKey: config.APIKey,
+			Model:  config.Model,
 		}
 		return NewDeepSeekProvider(deepSeekConfig), nil
 
 	default:
 		return nil, fmt.Errorf("unsupported provider: %s", config.Provider)
 	}
-} 
+}
