@@ -1,10 +1,10 @@
 # PR Description Generator
 
-PR Description Generator is a Go-based CLI tool that automatically generates pull request descriptions by comparing your current branch with the main branch. It uses a local Ollama instance to generate professional PR descriptions based on your actual code changes.
+PR Description Generator is a Go-based CLI tool that automatically generates pull request descriptions by comparing your current branch with any branch. It uses a local Ollama instance to generate professional PR descriptions based on your actual code changes.
 
 ## Features
 
-- Automatically compares current branch with main branch
+- Automatically compares current branch with any branch
 - Extracts git diff and commit history
 - Generates professional PR descriptions using local Ollama models
 - Outputs markdown format for easy integration with GitHub CLI
@@ -17,9 +17,9 @@ PR Description Generator is a Go-based CLI tool that automatically generates pul
 ## Requirements
 
 - Go 1.20+
-- Git repository with a main branch
-- Ollama installed and running locally
-- An Ollama model (default: devstral:latest)
+- Git repository
+- Ollama installed and running locally (or remotely)
+- An Ollama model (default: qwen2.5-coder:14b-instruct-q8_0)
 
 ## Installation
 
@@ -150,9 +150,9 @@ Based on testing, these models perform best for PR description generation:
 
 ## How It Works
 
-1. **Branch Detection**: Determines your current branch name or the provided one by the `branch` flag
-2. **Diff Generation**: Compares your current branch with main using `git diff <branch>...`
-3. **Commit History**: Extracts commit messages since the main branch
+1. **Branch Detection**: Determines your current branch name and the one you want to compare it with using `main` or the provided one by the `branch` flag
+2. **Diff Generation**: Compares your current branch with main or `branch` using `git diff <branch>...`
+3. **Commit History**: Extracts commit messages since the desired branch
 4. **File Analysis**: Analyzes what types of files were changed
 5. **LLM Processing**: Formats the information and sends it to Ollama with low temperature (0.1)
 6. **Response Validation**: Checks for generic responses and retries if needed
