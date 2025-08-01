@@ -86,7 +86,7 @@ func main() {
 
 	// Parse command line flags (these override config file)
 	var (
-		provider    = flag.String("provider", string(config.Provider), "LLM provider (ollama, openai, anthropic)")
+		provider    = flag.String("provider", string(config.Provider), "LLM provider (ollama, openai, anthropic, deepseek)")
 		model       = flag.String("model", config.Model, "Model to use")
 		apiKey      = flag.String("api-key", config.APIKey, "API key for the provider")
 		baseURL     = flag.String("base-url", config.BaseURL, "Base URL for the provider")

@@ -1,13 +1,13 @@
 # PR Description Generator
 
-PR Description Generator is a Go-based CLI tool that automatically generates pull request descriptions by comparing your current branch with any branch. It supports multiple LLM providers including local Ollama models, OpenAI, and Anthropic to generate professional PR descriptions based on your actual code changes.
+PR Description Generator is a Go-based CLI tool that automatically generates pull request descriptions by comparing your current branch with any branch. It supports multiple LLM providers including local Ollama models, OpenAI, Anthropic, and DeepSeek to generate professional PR descriptions based on your actual code changes.
 
 ## Features
 
 - Automatically compares current branch with any branch
 - Extracts git diff and commit history
 - Generates professional PR descriptions using multiple LLM providers
-- Supports Ollama (local), OpenAI, and Anthropic
+- Supports Ollama (local), OpenAI, Anthropic, and DeepSeek
 - Outputs markdown format for easy integration with GitHub CLI
 - No manual input required - everything is calculated from your git repository
 - Config file support for persistent settings
@@ -23,6 +23,7 @@ PR Description Generator is a Go-based CLI tool that automatically generates pul
   - **Ollama**: Local models (default: qwen2.5-coder:14b-instruct-q8_0)
   - **OpenAI**: API key and model (e.g., gpt-4, gpt-3.5-turbo)
   - **Anthropic**: API key and model (e.g., claude-3-sonnet-20240229)
+  - **DeepSeek**: API key and model (e.g., deepseek-chat, deepseek-coder)
 
 ## Installation
 
@@ -72,6 +73,14 @@ temperature=0.1
 provider=anthropic
 api_key=your_anthropic_api_key_here
 model=claude-3-sonnet-20240229
+temperature=0.1
+```
+
+**For DeepSeek:**
+```ini
+provider=deepseek
+api_key=your_deepseek_api_key_here
+model=deepseek-chat
 temperature=0.1
 ```
 
@@ -132,9 +141,9 @@ On Linux:
 
 Available options:
 
-- `-provider`: LLM provider (ollama, openai, anthropic)
+- `-provider`: LLM provider (ollama, openai, anthropic, deepseek)
 - `-model`: Model to use (varies by provider)
-- `-api-key`: API key for the provider (required for OpenAI/Anthropic)
+- `-api-key`: API key for the provider (required for OpenAI/Anthropic/DeepSeek)
 - `-base-url`: Base URL for the provider (optional, defaults vary by provider)
 - `-temperature`: Temperature for generation (default: 0.1)
 - `-branch`: Branch to compare current changes against (default: `main`)
@@ -155,6 +164,11 @@ Available options:
 **Using Anthropic:**
 ```bash
 ./gopr -provider anthropic -model claude-3-sonnet-20240229 -api-key your_api_key_here
+```
+
+**Using DeepSeek:**
+```bash
+./gopr -provider deepseek -model deepseek-chat -api-key your_api_key_here
 ```
 
 **Enable verbose output:**
@@ -192,6 +206,11 @@ Based on testing, these models perform best for PR description generation:
 1. **claude-3-sonnet-20240229** - Excellent code analysis and PR descriptions
 2. **claude-3-haiku-20240307** - Fast and efficient for smaller changes
 3. **claude-3-opus-20240229** - Highest quality but slower responses
+
+### DeepSeek Models
+1. **deepseek-chat** - Excellent code understanding and PR descriptions
+2. **deepseek-coder** - Specialized for code-related tasks
+3. **deepseek-chat-33b** - High-quality responses with good performance
 
 ## How It Works
 

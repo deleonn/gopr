@@ -44,6 +44,17 @@ func (f *ProviderFactory) CreateProvider(config models.Config) (models.LLMProvid
 		}
 		return NewAnthropicProvider(anthropicConfig), nil
 
+	case models.ProviderDeepSeek:
+		if config.APIKey == "" {
+			return nil, fmt.Errorf("API key is required for DeepSeek provider")
+		}
+		deepSeekConfig := models.DeepSeekConfig{
+			APIKey:  config.APIKey,
+			Model:   config.Model,
+			BaseURL: config.BaseURL,
+		}
+		return NewDeepSeekProvider(deepSeekConfig), nil
+
 	default:
 		return nil, fmt.Errorf("unsupported provider: %s", config.Provider)
 	}

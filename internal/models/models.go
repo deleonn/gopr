@@ -17,6 +17,7 @@ const (
 	ProviderOllama   ProviderType = "ollama"
 	ProviderOpenAI   ProviderType = "openai"
 	ProviderAnthropic ProviderType = "anthropic"
+	ProviderDeepSeek ProviderType = "deepseek"
 )
 
 // Config holds the configuration for the application
@@ -45,4 +46,11 @@ type OpenAIConfig struct {
 type AnthropicConfig struct {
 	APIKey string `json:"api_key"`
 	Model  string `json:"model"`
+}
+
+// DeepSeekConfig holds DeepSeek-specific configuration
+type DeepSeekConfig struct {
+	APIKey string `json:"api_key"`
+	Model  string `json:"model"`
+	BaseURL string `json:"base_url,omitempty"`
 } 
