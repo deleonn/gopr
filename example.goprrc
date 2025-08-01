@@ -1,0 +1,39 @@
+# Example configuration file for gopr
+# Copy this to .goprrc in your project root or home directory
+
+# Choose your provider: ollama, openai, anthropic, or deepseek
+provider=ollama
+
+# Model to use (varies by provider)
+model=qwen2.5-coder:14b-instruct-q8_0
+
+# Base URL (for Ollama or custom OpenAI endpoints)
+base_url=http://localhost:11434
+
+# API Key (required for OpenAI and Anthropic)
+# api_key=your_api_key_here
+
+# Temperature for generation (0.0 to 1.0, lower = more focused)
+temperature=0.1
+
+# Examples for different providers:
+
+# For OpenAI:
+# provider=openai
+# model=gpt-4
+# api_key=sk-your-openai-api-key-here
+
+# For Anthropic:
+# provider=anthropic
+# model=claude-3-sonnet-20240229
+# api_key=sk-ant-your-anthropic-api-key-here
+
+# For DeepSeek:
+# provider=deepseek
+# model=deepseek-chat
+# api_key=your-deepseek-api-key-here
+
+# For remote Ollama:
+# provider=ollama
+# base_url=http://192.168.1.100:11434
+# model=devstral:latest 

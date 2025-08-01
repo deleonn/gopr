@@ -7,20 +7,19 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
+	"github.com/deleonn/gopr/internal/models"
 	"github.com/deleonn/gopr/internal/service"
 )
 
-type Config struct {
-	OllamaURL string
-	Model     string
-}
-
-func loadConfig() Config {
-	config := Config{
-		OllamaURL: "http://msi_th.home:11434",
-		Model:     "qwen2.5-coder:14b-instruct-q8_0",
+func loadConfig() models.Config {
+	config := models.Config{
+		Provider:    models.ProviderOllama,
+		Model:       "qwen2.5-coder:14b-instruct-q8_0",
+		BaseURL:     "http://localhost:11434",
+		Temperature: 0.1,
 	}
 
 	// Try to load from .goprrc in current directory
@@ -43,7 +42,7 @@ func fileExists(filename string) bool {
 	return err == nil
 }
 
-func loadConfigFromFile(filename string, config *Config) {
+func loadConfigFromFile(filename string, config *models.Config) {
 	file, err := os.Open(filename)
 	if err != nil {
 		return
@@ -66,10 +65,18 @@ func loadConfigFromFile(filename string, config *Config) {
 		value := strings.TrimSpace(parts[1])
 
 		switch key {
-		case "ollama_url":
-			config.OllamaURL = value
+		case "provider":
+			config.Provider = models.ProviderType(value)
 		case "model":
 			config.Model = value
+		case "api_key":
+			config.APIKey = value
+		case "base_url":
+			config.BaseURL = value
+		case "temperature":
+			if temp, err := strconv.ParseFloat(value, 64); err == nil {
+				config.Temperature = temp
+			}
 		}
 	}
 }
@@ -79,14 +86,27 @@ func main() {
 
 	// Parse command line flags (these override config file)
 	var (
-		ollamaURL = flag.String("ollama-url", config.OllamaURL, "Ollama server URL")
-		model     = flag.String("model", config.Model, "Ollama model to use")
-		branch    = flag.String("branch", "main", "Branch for diff comparison")
-		verbose   = flag.Bool("verbose", false, "Enable verbose output")
+		provider    = flag.String("provider", string(config.Provider), "LLM provider (ollama, openai, anthropic, deepseek)")
+		model       = flag.String("model", config.Model, "Model to use")
+		apiKey      = flag.String("api-key", config.APIKey, "API key for the provider")
+		baseURL     = flag.String("base-url", config.BaseURL, "Base URL for the provider")
+		temperature = flag.Float64("temperature", config.Temperature, "Temperature for generation")
+		branch      = flag.String("branch", "main", "Branch for diff comparison")
+		verbose     = flag.Bool("verbose", false, "Enable verbose output")
 	)
 	flag.Parse()
 
-	prService := service.NewPRService(*ollamaURL, *model, *branch)
+	// Override config with command line flags
+	config.Provider = models.ProviderType(*provider)
+	config.Model = *model
+	config.APIKey = *apiKey
+	config.BaseURL = *baseURL
+	config.Temperature = *temperature
+
+	prService, err := service.NewPRService(config, *branch)
+	if err != nil {
+		log.Fatalf("Failed to create PR service: %v", err)
+	}
 
 	description, err := prService.GeneratePRDescriptionFromBranch(*verbose)
 	if err != nil {
