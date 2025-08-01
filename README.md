@@ -9,10 +9,10 @@ PR Description Generator is a Go-based CLI tool that automatically generates pul
 - Generates professional PR descriptions using local Ollama models
 - Outputs markdown format for easy integration with GitHub CLI
 - No manual input required - everything is calculated from your git repository
-- **NEW**: Config file support for persistent settings
-- **NEW**: Enhanced accuracy with file type analysis and response validation
-- **NEW**: Retry logic for better reliability
-- **NEW**: Temperature control for more focused responses
+- Config file support for persistent settings
+- Enhanced accuracy with file type analysis and response validation
+- Retry logic for better reliability
+- Temperature control for more focused responses
 
 ## Requirements
 
@@ -54,12 +54,14 @@ model=devstral:latest
 ```
 
 The tool will look for config files in this order:
+
 1. `.goprrc` in current directory
 2. `~/.goprrc` in home directory
 
 ### Environment Variables
 
 You can also use environment variables:
+
 - `GOPR_OLLAMA_URL`
 - `GOPR_MODEL`
 
@@ -86,11 +88,13 @@ Generate and update your PR description:
 ### Copy to Clipboard
 
 On macOS:
+
 ```bash
 ./gopr | pbcopy
 ```
 
 On Linux:
+
 ```bash
 ./gopr | xclip -selection clipboard
 ```
@@ -102,25 +106,36 @@ On Linux:
 ```
 
 Available options:
+
 - `-ollama-url`: Ollama server URL (default: from config or http://localhost:11434)
-- `-model`: Ollama model to use (default: from config or devstral:latest)
+- `-model`: Ollama model to use (default: from config or qwen2.5-coder:14b-instruct-q8_0)
+- `-branch`: Branch to compare current changes against to (default: `main`)
 - `-verbose`: Enable verbose output for debugging
 
 ### Examples
 
 Use a different model:
+
 ```bash
 ./gopr -model codellama
 ```
 
 Enable verbose output:
+
 ```bash
 ./gopr -verbose
 ```
 
 Use a remote Ollama instance:
+
 ```bash
 ./gopr -ollama-url http://192.168.1.100:11434
+```
+
+Full command with all parameters provided:
+
+```bash
+gopr -model qwen2.5-coder:14b-instruct-q8_0 -ollama-url http://192.168.1.100:11434 -branch main -verbose true
 ```
 
 ## Recommended Models
@@ -131,11 +146,12 @@ Based on testing, these models perform best for PR description generation:
 2. **phi4:latest** (14.7B) - Good balance of size and accuracy
 3. **deepseek-coder-v2:latest** (15.7B) - Code-focused but may be less accurate
 4. **qwen2.5-coder:latest** (32B) - Large model, good accuracy but slower
+5. **qwen2.5-coder:14b-instruct-q8_0** (14B) - Good accuracy but slower
 
 ## How It Works
 
-1. **Branch Detection**: Determines your current branch name
-2. **Diff Generation**: Compares your current branch with main using `git diff main...`
+1. **Branch Detection**: Determines your current branch name or the provided one by the `branch` flag
+2. **Diff Generation**: Compares your current branch with main using `git diff <branch>...`
 3. **Commit History**: Extracts commit messages since the main branch
 4. **File Analysis**: Analyzes what types of files were changed
 5. **LLM Processing**: Formats the information and sends it to Ollama with low temperature (0.1)
